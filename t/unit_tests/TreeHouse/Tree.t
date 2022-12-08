@@ -89,6 +89,16 @@ subtest 'is_tree_visible' => sub {
             };
         };
     };
+
+    subtest
+      'should return false if the tree is not visible from any direction' =>
+      sub {
+        my $x       = 2;
+        my $y       = 2;
+        my $visible = TreeHouse::Tree::is_tree_visible( $height_map, $x, $y );
+
+        is( $visible, 0 );
+      };
 };
 
 subtest 'view_distance' => sub {
