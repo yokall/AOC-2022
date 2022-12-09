@@ -13,4 +13,4 @@ jobs:
       - name: Run tests
         run: yath t
       - name: Gather code coverage
-        run: cover -t +select ^lib +ignore ^ -make 'prove -Ilib -r t; exit $?'
+        run: cover -coverage statement -coverage branch -coverage condition -t +select ^lib +ignore ^ -make 'prove -Ilib -r t; exit $?'
