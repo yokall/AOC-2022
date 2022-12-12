@@ -5,39 +5,19 @@ use warnings;
 
 use RopeBridge::Position;
 
-sub get_touching_positions {
-    my ( $x, $y ) = @_;
+sub touching {
+    my $position1 = shift;
+    my $position2 = shift;
 
-    my @touching_positions;
+    my $touching = 1;
 
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x, y => $y ) );
+    if (   abs( $position1->x - $position2->x ) > 1
+        || abs( $position1->y - $position2->y ) > 1 )
+    {
+        $touching = 0;
+    }
 
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x - 1, y => $y - 1 ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x, y => $y - 1 ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x + 1, y => $y - 1 ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x - 1, y => $y ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x + 1, y => $y ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x - 1, y => $y + 1 ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x, y => $y + 1 ) );
-
-    push( @touching_positions,
-        RopeBridge::Position->new( x => $x + 1, y => $y + 1 ) );
-
-    return \@touching_positions;
+    return $touching;
 }
 
 1;

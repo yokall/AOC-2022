@@ -9,31 +9,45 @@ use lib 'lib';
 
 use RopeBridge::PositionCalculator;
 
-subtest 'get_touching_positions' => sub {
-    subtest
-        'should return all points directly around a point including diagonally'
-        => sub {
-        my $x = 1;
-        my $y = 1;
+subtest 'touching' => sub {
+    subtest 'should return true if positions are' => sub {
+        my $expected = 1;
+
+        subtest 'the same' => sub {
+            my $position1 = RopeBridge::Position->new( x => 1, y => 1 );
+            my $position2 = RopeBridge::Position->new( x => 1, y => 1 );
+
+            my $actual
+                = RopeBridge::PositionCalculator::touching( $position1,
+                $position2 );
+
+            is( $actual, $expected );
+        };
+
+        subtest 'adjacent including diagonally' => sub {
+            my $position1 = RopeBridge::Position->new( x => 1, y => 1 );
+            my $position2 = RopeBridge::Position->new( x => 2, y => 2 );
+
+            my $actual
+                = RopeBridge::PositionCalculator::touching( $position1,
+                $position2 );
+
+            is( $actual, $expected );
+        };
+    };
+
+    subtest 'should return false if positions are not adjacent' => sub {
+        my $position1 = RopeBridge::Position->new( x => 1, y => 1 );
+        my $position2 = RopeBridge::Position->new( x => 3, y => 1 );
 
         my $actual
-            = RopeBridge::PositionCalculator::get_touching_positions( $x,
-            $y );
+            = RopeBridge::PositionCalculator::touching( $position1,
+            $position2 );
 
-        my $expected = [
-            RopeBridge::Position->new( x => 1, y => 1 ),
-            RopeBridge::Position->new( x => 0, y => 0 ),
-            RopeBridge::Position->new( x => 1, y => 0 ),
-            RopeBridge::Position->new( x => 2, y => 0 ),
-            RopeBridge::Position->new( x => 0, y => 1 ),
-            RopeBridge::Position->new( x => 2, y => 1 ),
-            RopeBridge::Position->new( x => 0, y => 2 ),
-            RopeBridge::Position->new( x => 1, y => 2 ),
-            RopeBridge::Position->new( x => 2, y => 2 ),
-        ];
+        my $expected = 0;
 
         is( $actual, $expected );
-        };
+    };
 };
 
 done_testing();

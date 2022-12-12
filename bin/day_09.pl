@@ -17,25 +17,48 @@ my $puzzle_input = Common::FileReader::read_file_to_array(
 # my $puzzle_input
 #     = [ 'R 4', 'U 4', 'L 3', 'D 1', 'R 4', 'D 1', 'L 5', 'R 2', ];
 
-my $head_position = RopeBridge::Position->new( x => 100, y => 100 );
-my $tail_position = RopeBridge::Position->new( x => 100, y => 100 );
+my $positions = [
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+];
 
-my %tail_positions;
-foreach my $instruction ( @{$puzzle_input} ) {
-    my ( $direction, $distance ) = split( / /, $instruction );
+my $part1_ans = _execute_moves( $positions, $puzzle_input );
 
-    for ( my $i = 0; $i < $distance; $i++ ) {
+print 'Part 1 answer: ' . $part1_ans . "\n";
 
-        ( $head_position, $tail_position )
-            = RopeBridge::Move::execute( $head_position, $tail_position,
-            $direction );
+$positions = [
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+    RopeBridge::Position->new( x => 100, y => 100 ),
+];
 
-       # warn 'TAIL POSITION: ' . $tail_position->x . ',' . $tail_position->y;
+my $part2_ans = _execute_moves( $positions, $puzzle_input );
 
-        $tail_positions{ $tail_position->x . ',' . $tail_position->y } = 1;
+print 'Part 2 answer: ' . $part2_ans . "\n";
+
+sub _execute_moves {
+    my ( $positions, $move_instructions ) = @_;
+
+    my %tail_positions;
+    foreach my $instruction ( @{$move_instructions} ) {
+        my ( $direction, $distance ) = split( / /, $instruction );
+
+        for ( my $i = 0; $i < $distance; $i++ ) {
+
+            ($positions)
+                = RopeBridge::Move::execute( $positions, $direction );
+
+            $tail_positions{ $positions->[-1]->x . ',' . $positions->[-1]->y }
+                = 1;
+        }
     }
+
+    return scalar( keys %tail_positions );
 }
-
-print 'Part 1 answer: ' . scalar( keys %tail_positions ) . "\n";
-
-# print 'Part 2 answer: ' . $best_scenic_score . "\n";

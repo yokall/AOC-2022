@@ -3,13 +3,19 @@ package RopeBridge::Move;
 use strict;
 use warnings;
 
-use Data::Compare;
-
-use RopeBridge::Position;
 use RopeBridge::PositionCalculator;
 
 sub execute {
-    my ( $head_position, $tail_position, $direction ) = @_;
+    my ( $positions, $direction ) = @_;
+
+    $positions->[0] = _move_head( $positions->[0], $direction );
+    $positions = _move_tail($positions);
+
+    return $positions;
+}
+
+sub _move_head {
+    my ( $head_position, $direction ) = @_;
 
     if ( $direction eq 'U' ) {
         $head_position->y( $head_position->y - 1 );
@@ -24,57 +30,62 @@ sub execute {
         $head_position->x( $head_position->x - 1 );
     }
 
-    my $touching_positions
-        = RopeBridge::PositionCalculator::get_touching_positions(
-        $head_position->x, $head_position->y );
+    return $head_position;
+}
 
-    my $touching = 0;
-    foreach my $position ( @{$touching_positions} ) {
-        my $c = new Data::Compare( $tail_position, $position );
-        if ( $c->Cmp ) {
-            $touching = 1;
-            last;
-        }
-    }
+sub _move_tail {
+    my $positions = shift;
 
-    unless ($touching) {
-        if ( $tail_position->y == $head_position->y ) {
-            my $x
-                = $tail_position->x < $head_position->x
-                ? $tail_position->x + 1
-                : $tail_position->x - 1;
-            $tail_position->x($x);
-        }
-        elsif ( $tail_position->x == $head_position->x ) {
-            my $y
-                = $tail_position->y < $head_position->y
-                ? $tail_position->y + 1
-                : $tail_position->y - 1;
-            $tail_position->y($y);
-        }
-        elsif ( $tail_position->x < $head_position->x ) {
-            $tail_position->x( $tail_position->x + 1 );
+    for ( my $i = 0; $i < scalar( @{$positions} ) - 1; $i++ ) {
+        my $head_position = $positions->[$i];
+        my $tail_position = $positions->[ $i + 1 ];
 
-            if ( $tail_position->y > $head_position->y ) {
-                $tail_position->y( $tail_position->y - 1 );
+        my $touching
+            = RopeBridge::PositionCalculator::touching( $head_position,
+            $tail_position );
+
+        unless ($touching) {
+            if ( $tail_position->y == $head_position->y ) {
+                my $x
+                    = $tail_position->x < $head_position->x
+                    ? $tail_position->x + 1
+                    : $tail_position->x - 1;
+                $tail_position->x($x);
+            }
+            elsif ( $tail_position->x == $head_position->x ) {
+                my $y
+                    = $tail_position->y < $head_position->y
+                    ? $tail_position->y + 1
+                    : $tail_position->y - 1;
+                $tail_position->y($y);
+            }
+            elsif ( $tail_position->x < $head_position->x ) {
+                $tail_position->x( $tail_position->x + 1 );
+
+                if ( $tail_position->y > $head_position->y ) {
+                    $tail_position->y( $tail_position->y - 1 );
+                }
+                else {
+                    $tail_position->y( $tail_position->y + 1 );
+                }
             }
             else {
-                $tail_position->y( $tail_position->y + 1 );
-            }
-        }
-        else {
-            $tail_position->x( $tail_position->x - 1 );
+                $tail_position->x( $tail_position->x - 1 );
 
-            if ( $tail_position->y > $head_position->y ) {
-                $tail_position->y( $tail_position->y - 1 );
-            }
-            else {
-                $tail_position->y( $tail_position->y + 1 );
+                if ( $tail_position->y > $head_position->y ) {
+                    $tail_position->y( $tail_position->y - 1 );
+                }
+                else {
+                    $tail_position->y( $tail_position->y + 1 );
+                }
             }
         }
+
+        $positions->[$i] = $head_position;
+        $positions->[ $i + 1 ] = $tail_position;
     }
 
-    return ( $head_position, $tail_position );
+    return $positions;
 }
 
 1;
