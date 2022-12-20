@@ -92,10 +92,10 @@ for ( my $y = 0; $y < scalar( @{$puzzle_input} ); $y++ ) {
     push( @map, \@row );
 }
 
-my $starting_node = HillClimb::Map::find_exit_node( \@map );
+$starting_node = HillClimb::Map::find_exit_node( \@map );
 $starting_node->visit;
 
-my @queue;
+@queue = ();
 
 push( @queue, $starting_node );
 

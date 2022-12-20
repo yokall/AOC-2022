@@ -5,17 +5,17 @@ use warnings;
 
 use Test2::V0;
 
-use lib 'lib';
+use lib '/home/colin/AOC-2022/lib';
 
 use HillClimb::Map;
 use HillClimb::Node;
 
 my $puzzle_input = [
-    [ 'S', 'a', 'b', 'q', 'p', 'o', 'n', 'm' ],
+    [ 'a', 'a', 'b', 'q', 'p', 'o', 'n', 'm' ],
     [ 'a', 'b', 'c', 'r', 'y', 'x', 'x', 'l' ],
     [ 'a', 'c', 'c', 's', 'z', 'E', 'x', 'k' ],
     [ 'a', 'c', 'c', 't', 'u', 'v', 'w', 'j' ],
-    [ 'a', 'b', 'd', 'e', 'f', 'g', 'h', 'i' ],
+    [ 'a', 'b', 'd', 'e', 'S', 'g', 'h', 'i' ],
 ];
 
 my @map;
@@ -38,7 +38,7 @@ subtest 'find_starting_node' => sub {
     subtest "should return the node that is marked 'S'" => sub {
         my $actual = HillClimb::Map::find_starting_node( \@map );
 
-        my $expected = HillClimb::Node->new( x => 0, y => 0, letter => 'S' );
+        my $expected = HillClimb::Node->new( x => 4, y => 4, letter => 'S' );
 
         is( $actual, $expected );
     };
