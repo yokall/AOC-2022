@@ -51,9 +51,83 @@ subtest
 "..........\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n........#.\n#########.\n";
 
     is( $cave->draw(), $expected_cave_string );
-
-    print $cave->draw();
   };
+
+subtest
+  'add_new_piece_of_sand should add a new piece of sand at position (0,500)' =>
+  sub {
+    my $cave = _create_cave();
+
+    $cave->add_new_piece_of_sand();
+
+    my $expected_cave_string =
+"......o...\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n........#.\n#########.\n";
+
+    is( $cave->draw(), $expected_cave_string );
+  };
+
+subtest 'move_sand' => sub {
+    subtest 'should move the falling piece of sand' => sub {
+        subtest 'straight down when there is nothing beneath it' => sub {
+            my $cave = _create_cave();
+
+            $cave->add_new_piece_of_sand();
+            $cave->move_sand();
+
+            my $expected_cave_string =
+"......o...\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n......o.#.\n#########.\n";
+
+            is( $cave->draw(), $expected_cave_string );
+        };
+
+        subtest
+'down and to the left when there is something beneath it but space down and to the left'
+          => sub {
+            my $cave = _create_cave();
+
+            $cave->add_new_piece_of_sand();
+            $cave->move_sand();
+            $cave->move_sand();
+
+            my $expected_cave_string =
+"..........\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....oo.#.\n#########.\n";
+
+            is( $cave->draw(), $expected_cave_string );
+
+            print $cave->draw();
+          };
+
+        subtest
+'down and to the right when there is something beneath it, down and to the left but space down and to the right'
+          => sub {
+            my $cave = _create_cave();
+
+            $cave->add_new_piece_of_sand();
+            $cave->move_sand() for 1 .. 4;
+
+            my $expected_cave_string =
+"..........\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....ooo#.\n#########.\n";
+
+            is( $cave->draw(), $expected_cave_string );
+
+            print $cave->draw();
+          };
+    };
+
+    subtest
+'should add a new piece of sand when the falling piece of sand has come to rest'
+      => sub {
+        my $cave = _create_cave();
+
+        $cave->add_new_piece_of_sand();
+        $cave->move_sand();
+
+        my $expected_cave_string =
+"......o...\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n......o.#.\n#########.\n";
+
+        is( $cave->draw(), $expected_cave_string );
+      };
+};
 
 done_testing();
 

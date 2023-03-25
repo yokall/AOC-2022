@@ -6,6 +6,7 @@ use warnings;
 use Moose;
 
 use RegolithResevoir::Line;
+use RegolithResevoir::Sand;
 
 has 'lines' => (
     traits  => ['Array'],
@@ -32,6 +33,40 @@ has 'grid' => (
     isa => 'ArrayRef[ArrayRef[Str]]',
 );
 
+has 'min_x' => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+has 'max_x' => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+has 'max_y' => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+has 'sand' => (
+    traits  => ['Array'],
+    is      => 'rw',
+    isa     => 'ArrayRef[RegolithResevoir::Sand]',
+    handles => {
+        all_sand    => 'elements',
+        add_sand    => 'push',
+        map_sand    => 'map',
+        filter_sand => 'grep',
+        find_sand   => 'first',
+        get_sand    => 'get',
+        join_sand   => 'join',
+        count_sand  => 'count',
+        has_sand    => 'count',
+        has_no_sand => 'is_empty',
+        sorted_sand => 'sort',
+    },
+);
+
 sub _lines_set {
     my ( $self, $lines, $old_lines ) = @_;
 
@@ -41,29 +76,29 @@ sub _lines_set {
 sub _build_grid {
     my $self = shift;
 
-    my $max_y = $self->_max_y();
-    my $min_x = $self->_min_x();
-    my $max_x = $self->_max_x();
+    $self->max_y( $self->_calculate_max_y() );
+    $self->min_x( $self->_calculate_min_x() );
+    $self->max_x( $self->_calculate_max_x() );
 
     my @grid;
-    for ( my $y = 0 ; $y <= $max_y ; $y++ ) {
+    for ( my $y = 0 ; $y <= $self->max_y ; $y++ ) {
         my @row;
-        for ( my $x = $min_x ; $x <= $max_x ; $x++ ) {
-            $row[ $x - $min_x ] = '.';
+        for ( my $x = $self->min_x ; $x <= $self->max_x ; $x++ ) {
+            $row[ $x - $self->min_x ] = '.';
         }
         push( @grid, \@row );
     }
 
     foreach my $line ( $self->all_lines() ) {
         foreach my $point ( $line->all_points() ) {
-            $grid[ $point->y ]->[ $point->x - $min_x ] = '#';
+            $grid[ $point->y ]->[ $point->x - $self->min_x ] = '#';
         }
     }
 
     $self->grid( \@grid );
 }
 
-sub _max_x {
+sub _calculate_max_x {
     my $self = shift;
 
     my $max_x = 0;
@@ -74,7 +109,7 @@ sub _max_x {
     return $max_x;
 }
 
-sub _min_x {
+sub _calculate_min_x {
     my $self = shift;
 
     my $min_x = 99999;
@@ -85,7 +120,7 @@ sub _min_x {
     return $min_x;
 }
 
-sub _max_y {
+sub _calculate_max_y {
     my $self = shift;
 
     my $max_y = 0;
@@ -111,6 +146,96 @@ sub draw {
     }
 
     return $string;
+}
+
+sub add_new_piece_of_sand {
+    my $self = shift;
+
+    $self->add_sand( RegolithResevoir::Sand->new() );
+
+    $self->grid->[0]->[ 500 - $self->min_x ] = 'o';
+}
+
+sub move_sand {
+    my $self = shift;
+
+    my $falling_sand = $self->find_sand( sub { $_->is_not_at_rest } );
+
+    my $ans = $self->_position_is_available( $falling_sand->position->x,
+        $falling_sand->position->y + 1 );
+
+    my $y_movement = 1;
+    while (
+        $self->_position_is_available(
+            $falling_sand->position->x,
+            $falling_sand->position->y + $y_movement
+        )
+      )
+    {
+        $y_movement++;
+    }
+
+    $self->grid->[ $falling_sand->position->y ]
+      ->[ $falling_sand->position->x - $self->min_x ] = '.';
+
+    $falling_sand->position->y(
+        $falling_sand->position->y + ( $y_movement - 1 ) );
+
+    $self->grid->[ $falling_sand->position->y ]
+      ->[ $falling_sand->position->x - $self->min_x ] = 'o';
+
+    if ( $self->grid->[ $falling_sand->position->y + 1 ]
+        ->[ $falling_sand->position->x - $self->min_x - 1 ] ne '#'
+        && $self->grid->[ $falling_sand->position->y + 1 ]
+        ->[ $falling_sand->position->x - $self->min_x - 1 ] ne 'o' )
+    {
+        return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
+
+        $self->grid->[ $falling_sand->position->y + 1 ]
+          ->[ $falling_sand->position->x - $self->min_x - 1 ] = 'o';
+
+        $self->grid->[ $falling_sand->position->y ]
+          ->[ $falling_sand->position->x - $self->min_x ] = '.';
+
+        $falling_sand->position->x( $falling_sand->position->x - 1 );
+        $falling_sand->position->y( $falling_sand->position->y + 1 );
+    }
+    elsif ( $self->grid->[ $falling_sand->position->y + 1 ]
+        ->[ $falling_sand->position->x - $self->min_x + 1 ] ne '#'
+        && $self->grid->[ $falling_sand->position->y + 1 ]
+        ->[ $falling_sand->position->x - $self->min_x + 1 ] ne 'o' )
+    {
+        return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
+
+        $self->grid->[ $falling_sand->position->y + 1 ]
+          ->[ $falling_sand->position->x - $self->min_x + 1 ] = 'o';
+
+        $self->grid->[ $falling_sand->position->y ]
+          ->[ $falling_sand->position->x - $self->min_x ] = '.';
+
+        $falling_sand->position->x( $falling_sand->position->x + 1 );
+        $falling_sand->position->y( $falling_sand->position->y + 1 );
+    }
+    else {
+        $falling_sand->set_at_rest;
+
+        $self->add_new_piece_of_sand();
+    }
+
+    return 1;
+}
+
+sub _position_is_available {
+    my $self = shift;
+    my ( $x, $y ) = @_;
+
+    my $anq = $self->grid->[$y]->[ $x - $self->min_x ] ne '#';
+
+    return 1
+      if ( $self->grid->[$y]->[ $x - $self->min_x ] ne '#'
+        && $self->grid->[$y]->[ $x - $self->min_x ] ne 'o' );
+
+    return 0;
 }
 
 1;
