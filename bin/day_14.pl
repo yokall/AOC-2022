@@ -36,19 +36,20 @@ my $count = 0;
 while ( $cave->move_sand() != -1 ) {
     $count++;
 
-    # if ( $count % 100 == 0 ) {
-    #     print "Count: $count:\n";
-    #     print $cave->draw();
-    #     print "\n";
-    # }
+    if ( $count % 100 == 0 ) {
+        print "Count: $count:\n";
+        print $cave->draw();
+        print "\n";
+    }
 }
 
-# print "Count: $count:\n";
-# print $cave->draw();
-# print "\n";
+print "Count: $count:\n";
+print $cave->draw();
+print "\n";
 
-my $ans = $cave->count_sand - 1;
+# part 2 very inefficient > 7m
+# need to figure out way to do both options
 
-print 'Part 1 answer: ' . $ans . "\n";
+print 'Part 1 answer: ' . $cave->count_sand - 1 . "\n";
 
-print 'Part 2 answer: ' . $ans . "\n";
+print 'Part 2 answer: ' . $cave->count_sand . "\n";
