@@ -161,9 +161,6 @@ sub move_sand {
 
     my $falling_sand = $self->find_sand( sub { $_->is_not_at_rest } );
 
-    my $ans = $self->_position_is_available( $falling_sand->position->x,
-        $falling_sand->position->y + 1 );
-
     my $y_movement = 1;
     while (
         $self->_position_is_available(
@@ -183,6 +180,8 @@ sub move_sand {
 
     $self->grid->[ $falling_sand->position->y ]
       ->[ $falling_sand->position->x - $self->min_x ] = 'o';
+
+    return -1 if ( $falling_sand->position->y >= $self->max_y );
 
     if ( $self->grid->[ $falling_sand->position->y + 1 ]
         ->[ $falling_sand->position->x - $self->min_x - 1 ] ne '#'
@@ -229,10 +228,9 @@ sub _position_is_available {
     my $self = shift;
     my ( $x, $y ) = @_;
 
-    my $anq = $self->grid->[$y]->[ $x - $self->min_x ] ne '#';
-
     return 1
-      if ( $self->grid->[$y]->[ $x - $self->min_x ] ne '#'
+      if ( $y <= $self->max_y
+        && $self->grid->[$y]->[ $x - $self->min_x ] ne '#'
         && $self->grid->[$y]->[ $x - $self->min_x ] ne 'o' );
 
     return 0;
