@@ -161,64 +161,68 @@ sub move_sand {
 
     my $falling_sand = $self->find_sand( sub { $_->is_not_at_rest } );
 
-    my $y_movement = 1;
-    while (
-        $self->_position_is_available(
-            $falling_sand->position->x,
-            $falling_sand->position->y + $y_movement
-        )
-      )
-    {
-        $y_movement++;
-    }
-
-    $self->grid->[ $falling_sand->position->y ]
-      ->[ $falling_sand->position->x - $self->min_x ] = '.';
-
-    $falling_sand->position->y(
-        $falling_sand->position->y + ( $y_movement - 1 ) );
-
-    $self->grid->[ $falling_sand->position->y ]
-      ->[ $falling_sand->position->x - $self->min_x ] = 'o';
-
-    return -1 if ( $falling_sand->position->y >= $self->max_y );
-
-    if ( $self->grid->[ $falling_sand->position->y + 1 ]
-        ->[ $falling_sand->position->x - $self->min_x - 1 ] ne '#'
-        && $self->grid->[ $falling_sand->position->y + 1 ]
-        ->[ $falling_sand->position->x - $self->min_x - 1 ] ne 'o' )
-    {
-        return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
-
-        $self->grid->[ $falling_sand->position->y + 1 ]
-          ->[ $falling_sand->position->x - $self->min_x - 1 ] = 'o';
+    while (1) {
+        my $y_movement = 1;
+        while (
+            $self->_position_is_available(
+                $falling_sand->position->x,
+                $falling_sand->position->y + $y_movement
+            )
+          )
+        {
+            $y_movement++;
+        }
 
         $self->grid->[ $falling_sand->position->y ]
           ->[ $falling_sand->position->x - $self->min_x ] = '.';
 
-        $falling_sand->position->x( $falling_sand->position->x - 1 );
-        $falling_sand->position->y( $falling_sand->position->y + 1 );
-    }
-    elsif ( $self->grid->[ $falling_sand->position->y + 1 ]
-        ->[ $falling_sand->position->x - $self->min_x + 1 ] ne '#'
-        && $self->grid->[ $falling_sand->position->y + 1 ]
-        ->[ $falling_sand->position->x - $self->min_x + 1 ] ne 'o' )
-    {
-        return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
-
-        $self->grid->[ $falling_sand->position->y + 1 ]
-          ->[ $falling_sand->position->x - $self->min_x + 1 ] = 'o';
+        $falling_sand->position->y(
+            $falling_sand->position->y + ( $y_movement - 1 ) );
 
         $self->grid->[ $falling_sand->position->y ]
-          ->[ $falling_sand->position->x - $self->min_x ] = '.';
+          ->[ $falling_sand->position->x - $self->min_x ] = 'o';
 
-        $falling_sand->position->x( $falling_sand->position->x + 1 );
-        $falling_sand->position->y( $falling_sand->position->y + 1 );
-    }
-    else {
-        $falling_sand->set_at_rest;
+        return -1 if ( $falling_sand->position->y >= $self->max_y );
 
-        $self->add_new_piece_of_sand();
+        if ( $self->grid->[ $falling_sand->position->y + 1 ]
+            ->[ $falling_sand->position->x - $self->min_x - 1 ] ne '#'
+            && $self->grid->[ $falling_sand->position->y + 1 ]
+            ->[ $falling_sand->position->x - $self->min_x - 1 ] ne 'o' )
+        {
+            return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
+
+            $self->grid->[ $falling_sand->position->y + 1 ]
+              ->[ $falling_sand->position->x - $self->min_x - 1 ] = 'o';
+
+            $self->grid->[ $falling_sand->position->y ]
+              ->[ $falling_sand->position->x - $self->min_x ] = '.';
+
+            $falling_sand->position->x( $falling_sand->position->x - 1 );
+            $falling_sand->position->y( $falling_sand->position->y + 1 );
+        }
+        elsif ( $self->grid->[ $falling_sand->position->y + 1 ]
+            ->[ $falling_sand->position->x - $self->min_x + 1 ] ne '#'
+            && $self->grid->[ $falling_sand->position->y + 1 ]
+            ->[ $falling_sand->position->x - $self->min_x + 1 ] ne 'o' )
+        {
+            return -1 if ( $falling_sand->position->y + 1 == $self->max_y );
+
+            $self->grid->[ $falling_sand->position->y + 1 ]
+              ->[ $falling_sand->position->x - $self->min_x + 1 ] = 'o';
+
+            $self->grid->[ $falling_sand->position->y ]
+              ->[ $falling_sand->position->x - $self->min_x ] = '.';
+
+            $falling_sand->position->x( $falling_sand->position->x + 1 );
+            $falling_sand->position->y( $falling_sand->position->y + 1 );
+        }
+        else {
+            $falling_sand->set_at_rest;
+
+            $self->add_new_piece_of_sand();
+
+            last;
+        }
     }
 
     return 1;

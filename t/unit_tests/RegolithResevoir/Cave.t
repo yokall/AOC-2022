@@ -90,11 +90,9 @@ subtest 'move_sand' => sub {
             $cave->move_sand();
 
             my $expected_cave_string =
-"..........\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....oo.#.\n#########.\n";
+"......o...\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....oo.#.\n#########.\n";
 
             is( $cave->draw(), $expected_cave_string );
-
-            print $cave->draw();
           };
 
         subtest
@@ -103,14 +101,12 @@ subtest 'move_sand' => sub {
             my $cave = _create_cave();
 
             $cave->add_new_piece_of_sand();
-            $cave->move_sand() for 1 .. 4;
+            $cave->move_sand() for 1 .. 3;
 
             my $expected_cave_string =
-"..........\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....ooo#.\n#########.\n";
+"......o...\n..........\n..........\n..........\n....#...##\n....#...#.\n..###...#.\n........#.\n.....ooo#.\n#########.\n";
 
             is( $cave->draw(), $expected_cave_string );
-
-            print $cave->draw();
           };
     };
 

@@ -18,6 +18,8 @@ my $puzzle_input = Common::FileReader::read_file_to_array(
 # my $puzzle_input =
 #   [ '498,4 -> 498,6 -> 496,6', '503,4 -> 502,4 -> 502,9 -> 494,9', ];
 
+# my $puzzle_input = [ '498,4 -> 498,6 -> 496,6', '503,4 -> 502,4 -> 502,9', ];
+
 my @lines;
 foreach my $line_definition ( @{$puzzle_input} ) {
     my $line =
@@ -34,16 +36,16 @@ my $count = 0;
 while ( $cave->move_sand() != -1 ) {
     $count++;
 
-    if ( $count % 100 == 0 ) {
-        print "Count: $count:\n";
-        print $cave->draw();
-        print "\n";
-    }
-
-    if ( $count % 200 == 0 ) {
-        last;
-    }
+    # if ( $count % 100 == 0 ) {
+    #     print "Count: $count:\n";
+    #     print $cave->draw();
+    #     print "\n";
+    # }
 }
+
+# print "Count: $count:\n";
+# print $cave->draw();
+# print "\n";
 
 my $ans = $cave->count_sand - 1;
 
