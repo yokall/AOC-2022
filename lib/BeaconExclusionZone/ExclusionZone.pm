@@ -25,4 +25,10 @@ has 'max_y' => (
     isa => 'Int',
 );
 
+sub covers_row {
+    my ( $self, $y ) = @_;
+
+    return ( $y >= $self->min_y && $y <= $self->max_y );
+}
+
 1;
