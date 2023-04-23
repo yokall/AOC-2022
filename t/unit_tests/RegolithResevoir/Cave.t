@@ -5,6 +5,9 @@ use warnings;
 
 use Test2::V0;
 
+# skip this test file as Cave class broke down once there was no nin X
+use Test2::Require::AuthorTesting;
+
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
